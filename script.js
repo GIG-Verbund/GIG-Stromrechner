@@ -1,41 +1,43 @@
 
-// Price scaling based on the first two digits of the postal code
-const priceFactors = {
-    "00": 0.5,
-    "10": 0.6,
-    "20": 0.7,
-    "30": 0.8,
-    "40": 0.9,
-    "50": 1.0,
-    "60": 1.1,
-    "70": 1.2,
-    "80": 1.3,
-    "90": 1.4
-};
+// Preisstaffelung basierend auf Ranges für die ersten beiden Ziffern der PLZ
+const priceRanges = [
+    { min: 0, max: 10, factor: 0.5 },
+    { min: 10, max: 20, factor: 0.6 },
+    { min: 20, max: 30, factor: 0.7 },
+    { min: 30, max: 40, factor: 0.8 },
+    { min: 40, max: 50, factor: 0.9 },
+    { min: 50, max: 60, factor: 1.0 },
+    { min: 60, max: 70, factor: 1.1 },
+    { min: 70, max: 80, factor: 1.2 },
+    { min: 80, max: 90, factor: 1.3 },
+    { min: 90, max: 100, factor: 1.4 }
+];
 
-// Function to calculate price based on the first two digits of the postal code
+// Funktion zur Berechnung des Preises basierend auf dem PLZ-Bereich
 function calculatePrice() {
-    // Retrieve input values
+    // Eingabewerte erfassen
     const zipCode = document.getElementById("zip-code").value.trim();
     const consumption = parseFloat(document.getElementById("consumption").value);
 
-    // Check if postal code input has at least 2 digits
+    // Überprüfen, ob die Eingabe für die PLZ mindestens 2 Ziffern enthält
     if (zipCode.length < 2) {
-        document.getElementById("result").innerHTML = "Please enter a valid postal code with at least two digits.";
+        document.getElementById("result").innerHTML = "Bitte gib eine gültige PLZ ein, die mindestens zwei Ziffern enthält.";
         return;
     }
 
-    // Determine factor based on first two digits of postal code
-    const zipPrefix = zipCode.substring(0, 2);
-    const priceFactor = priceFactors[zipPrefix];
+    // Ermittlung der ersten zwei Ziffern der PLZ als Ganzzahl
+    const zipPrefix = parseInt(zipCode.substring(0, 2), 10);
 
-    // Check if the factor exists and if consumption input is valid
+    // Passenden Faktor basierend auf dem Bereich finden
+    const priceFactor = priceRanges.find(range => zipPrefix >= range.min && zipPrefix < range.max)?.factor;
+
+    // Überprüfung, ob der Faktor existiert und der Verbrauch korrekt ist
     if (priceFactor && consumption > 0) {
         const monthlyCost = priceFactor * consumption;
-        document.getElementById("result").innerHTML = `Monthly cost: ${monthlyCost.toFixed(2)} €`;
+        document.getElementById("result").innerHTML = `Monatlicher Preis: ${monthlyCost.toFixed(2)} €`;
     } else if (!priceFactor) {
-        document.getElementById("result").innerHTML = "The entered postal code is not in the pricing range.";
+        document.getElementById("result").innerHTML = "Die eingegebene PLZ liegt außerhalb der verfügbaren Tarifbereiche.";
     } else {
-        document.getElementById("result").innerHTML = "Please enter a valid power consumption.";
+        document.getElementById("result").innerHTML = "Bitte gib einen gültigen Stromverbrauch ein.";
     }
 }
